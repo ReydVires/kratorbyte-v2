@@ -5,10 +5,14 @@ const API_BASE = 'http://localhost:5001/api';
 
 interface WorkflowContextType {
   workflows: any[];
+  templates: any[];
+  analytics: any | null;
   selectedWorkflow: any | null;
   selectedWorkflowId: string | null;
   setSelectedWorkflowId: (id: string) => void;
   fetchWorkflows: () => Promise<void>;
+  fetchTemplates: () => Promise<void>;
+  fetchAnalytics: () => Promise<void>;
   saveGeneratedWorkflow: (wfData: any) => Promise<any>;
 }
 
@@ -16,6 +20,8 @@ const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined
 
 export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [workflows, setWorkflows] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any | null>(null);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
 
   const fetchWorkflows = useCallback(async () => {
@@ -30,9 +36,29 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [selectedWorkflowId]);
 
+  const fetchTemplates = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/workflows/templates`);
+      setTemplates(res.data);
+    } catch (err) {
+      console.error('Failed to fetch templates', err);
+    }
+  }, []);
+
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/analytics`);
+      setAnalytics(res.data);
+    } catch (err) {
+      console.error('Failed to fetch analytics', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchWorkflows();
-  }, [fetchWorkflows]);
+    fetchTemplates();
+    fetchAnalytics();
+  }, [fetchWorkflows, fetchTemplates, fetchAnalytics]);
 
   const saveGeneratedWorkflow = async (wfData: any) => {
     try {
@@ -51,10 +77,14 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <WorkflowContext.Provider value={{
       workflows,
+      templates,
+      analytics,
       selectedWorkflow,
       selectedWorkflowId,
       setSelectedWorkflowId,
       fetchWorkflows,
+      fetchTemplates,
+      fetchAnalytics,
       saveGeneratedWorkflow
     }}>
       {children}

@@ -10,50 +10,22 @@ const AIBuilderView: React.FC<Props> = ({ onComplete }) => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const { saveGeneratedWorkflow } = useWorkflows();
-
-  const mockUseCases = [
-    {
-      title: "Github to Slack",
-      prompt: "Create a workflow that triggers on a Github webhook and sends a Slack notification.",
-      nodes: [
-        { id: 'g1', data: { label: 'Github Webhook' }, position: { x: 100, y: 100 } },
-        { id: 'g2', data: { label: 'Filter PRs' }, position: { x: 300, y: 100 } },
-        { id: 'g3', data: { label: 'Slack Notify' }, position: { x: 500, y: 100 } }
-      ],
-      edges: [
-        { id: 'eg1', source: 'g1', target: 'g2' },
-        { id: 'eg2', source: 'g2', target: 'g3' }
-      ]
-    },
-    {
-      title: "Shopify to Postgres",
-      prompt: "Every day at 9 AM, fetch inventory from Shopify and update my Postgres database.",
-      nodes: [
-        { id: 's1', data: { label: '9 AM Schedule' }, position: { x: 100, y: 100 } },
-        { id: 's2', data: { label: 'Shopify API' }, position: { x: 300, y: 100 } },
-        { id: 's3', data: { label: 'Postgres Upsert' }, position: { x: 500, y: 100 } }
-      ],
-      edges: [
-        { id: 'es1', source: 's1', target: 's2' },
-        { id: 'es2', source: 's2', target: 's3' }
-      ]
-    }
-  ];
+  const { saveGeneratedWorkflow, templates } = useWorkflows();
 
   const handleGenerate = () => {
     if (!prompt) return;
     setIsGenerating(true);
     
+    // Simulate AI generation delay
     setTimeout(async () => {
-      const match = mockUseCases.find(uc => prompt.toLowerCase().includes(uc.title.split(' ')[0].toLowerCase()));
+      const match = templates.find(uc => prompt.toLowerCase().includes(uc.title.split(' ')[0].toLowerCase()));
       const wfData = match ? { 
         name: match.title, 
         nodes: match.nodes, 
         edges: match.edges 
       } : { 
         name: 'AI Workflow', 
-        nodes: [{ id: 'f1', data: { label: 'AI Task' }, position: { x: 250, y: 100 } }], 
+        nodes: [{ id: 'f1', data: { label: 'AI Task' }, type: 'default', position: { x: 250, y: 100 } }], 
         edges: [] 
       };
 
@@ -108,10 +80,10 @@ const AIBuilderView: React.FC<Props> = ({ onComplete }) => {
 
         <div style={{ marginTop: 24 }}>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 12 }}>SUGGESTED TEMPLATES:</p>
-          <div style={{ display: 'flex', gap: 12 }}>
-            {mockUseCases.map((uc, idx) => (
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {templates.map((uc) => (
               <div 
-                key={idx} 
+                key={uc.id} 
                 className="glass-panel" 
                 style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '0.9rem' }}
                 onClick={() => setPrompt(uc.prompt)}

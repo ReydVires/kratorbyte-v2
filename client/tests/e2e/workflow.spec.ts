@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('FlowForge Workflow Engine', () => {
   test('should load the dashboard and show health metrics', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('System Health Overiew');
+    await expect(page.locator('h1')).toContainText('System Health Overview');
     await expect(page.locator('.glass-panel.card')).toHaveCount(6); // 4 metrics + 2 charts/lists
   });
 

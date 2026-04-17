@@ -1,21 +1,18 @@
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CheckCircle2, AlertCircle, Clock, Activity } from 'lucide-react';
-
-const data = [
-  { name: '00:00', success: 400, fail: 24 },
-  { name: '04:00', success: 300, fail: 13 },
-  { name: '08:00', success: 500, fail: 98 },
-  { name: '12:00', success: 278, fail: 39 },
-  { name: '16:00', success: 189, fail: 48 },
-  { name: '20:00', success: 239, fail: 38 },
-  { name: '23:59', success: 349, fail: 43 },
-];
+import { useWorkflows } from '../context/WorkflowContext';
 
 const DashboardView: React.FC = () => {
+  const { analytics } = useWorkflows();
+
+  if (!analytics) return <div style={{ padding: 40, textAlign: 'center' }}>Loading dashboard metrics...</div>;
+
+  const { metrics, performance, incidents } = analytics;
+
   return (
     <div className="dashboard-view">
-      <h1 style={{ marginBottom: 24 }}>System Health Overiew</h1>
+      <h1 style={{ marginBottom: 24 }}>System Health Overview</h1>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }}>
         <div className="glass-panel card">
@@ -23,31 +20,31 @@ const DashboardView: React.FC = () => {
             <span style={{ color: 'var(--text-dim)' }}>Success Rate</span>
             <CheckCircle2 size={20} color="#4ade80" />
           </div>
-          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>98.2%</h2>
-          <p style={{ color: '#4ade80', fontSize: '0.8rem' }}>+0.4% from last 24h</p>
+          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>{metrics.successRate}</h2>
+          <p style={{ color: '#4ade80', fontSize: '0.8rem' }}>{metrics.successTrend} from last 24h</p>
         </div>
         <div className="glass-panel card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-dim)' }}>Active Runs</span>
             <Activity size={20} color="#06b6d4" />
           </div>
-          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>124</h2>
-          <p style={{ color: '#06b6d4', fontSize: '0.8rem' }}>Running across 12 nodes</p>
+          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>{metrics.activeRuns}</h2>
+          <p style={{ color: '#06b6d4', fontSize: '0.8rem' }}>Running across nodes</p>
         </div>
         <div className="glass-panel card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-dim)' }}>Avg. Latency</span>
             <Clock size={20} color="#8b5cf6" />
           </div>
-          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>1.4s</h2>
-          <p style={{ color: '#8b5cf6', fontSize: '0.8rem' }}>P95: 2.1s</p>
+          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>{metrics.avgLatency}</h2>
+          <p style={{ color: '#8b5cf6', fontSize: '0.8rem' }}>P95: {metrics.latencyP95}</p>
         </div>
         <div className="glass-panel card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-dim)' }}>System Alerts</span>
             <AlertCircle size={20} color="#ef4444" />
           </div>
-          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>12</h2>
+          <h2 style={{ fontSize: '2rem', marginTop: 12 }}>{metrics.alerts}</h2>
           <p style={{ color: '#fca5a5', fontSize: '0.8rem' }}>Requires attention</p>
         </div>
       </div>
@@ -56,7 +53,7 @@ const DashboardView: React.FC = () => {
         <div className="glass-panel card" style={{ height: 400 }}>
           <h3 style={{ marginBottom: 20 }}>Performance Metrics</h3>
           <ResponsiveContainer width="100%" height="90%">
-            <AreaChart data={data}>
+            <AreaChart data={performance}>
               <defs>
                 <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
@@ -79,13 +76,15 @@ const DashboardView: React.FC = () => {
         <div className="glass-panel card">
           <h3 style={{ marginBottom: 20 }}>Recent Incidents</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: 12 }}>
+            {incidents.map((incident: any) => (
+              <div key={incident.id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Webhook Failure</span>
-                  <span className="badge badge-error">Critical</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{incident.title}</span>
+                  <span className={`badge ${incident.severity === 'Critical' ? 'badge-error' : 'badge-warning'}`}>
+                    {incident.severity}
+                  </span>
                 </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Target host: api.stripe.com (502 Bad Gateway)</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{incident.description}</p>
               </div>
             ))}
           </div>
