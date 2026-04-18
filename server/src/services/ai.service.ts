@@ -39,6 +39,10 @@ export class AIService {
       Do not include any markdown formatting or explanations.
     `;
 
+    if (prompt.length > 2000) {
+      throw new Error('Prompt is too long. Please be more concise.');
+    }
+
     const result = await model.generateContent([systemPrompt, prompt]);
     const response = await result.response;
     const text = response.text();
@@ -46,10 +50,17 @@ export class AIService {
     try {
       // Clean potential markdown code blocks if AI included them
       const cleanJson = text.replace(/```json|```/g, '').trim();
-      return JSON.parse(cleanJson);
-    } catch (err) {
+      const workflow = JSON.parse(cleanJson);
+
+      // Structural Guard: Ensure required keys exist
+      if (!workflow.nodes || !workflow.edges) {
+        throw new Error('Generated workflow is missing core components (nodes or edges).');
+      }
+
+      return workflow;
+    } catch (err: any) {
       console.error('Failed to parse AI response:', text);
-      throw new Error('AI generated an invalid workflow structure');
+      throw new Error(err.message || 'AI generated an invalid workflow structure');
     }
   }
 }
