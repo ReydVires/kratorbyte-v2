@@ -8,9 +8,14 @@ services:
     environment:
       - PORT=5001
       - JWT_SECRET=flowforge_secret_key_2024
+      - DATABASE_URL=file:./dev.db
+    volumes:
+      - ./server/prisma:/app/prisma
 
   client:
-    build: ./client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:

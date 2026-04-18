@@ -74,14 +74,32 @@ To prevent malformed or invalid workflows from crashing the UI, we implement a m
 2. **Structural Validation**: After JSON parsing, we verify the existence of mandatory keys (`nodes`, `edges`).
 3. **Graceful Fallbacks**: If parsing fails or structural validation is unsatisfied, the system throws a descriptive error and logs the malformed response for debugging, while the UI prompts the user to refine their request.
 
+## 🐳 Docker Deployment
+
+The application is fully containerized. To run the entire stack using Docker:
+
+1. **Build and Run**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the Application**
+   - **Frontend**: `http://localhost:3000`
+   - **Backend**: `http://localhost:5001`
+
+3. **Docker Persistence**
+   The Prisma database is persisted via a volume mapped to `./server/prisma`.
+
 ## 🧪 Testing
 
-We use **Playwright** for E2E testing. 
+We use **Playwright** for E2E testing. To run tests locally:
 
-```bash
-# Run tests
-npx playwright test
-```
+1. Ensure the application is running (`npm run dev` in both client and server).
+2. Run the tests from the `client` directory:
+   ```bash
+   cd client
+   npx playwright test
+   ```
 
 ---
 © 2026 FlowForge AI
