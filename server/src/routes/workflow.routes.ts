@@ -7,5 +7,6 @@ router.get('/', workflowController.getWorkflows);
 router.post('/', workflowController.createWorkflow);
 router.get('/templates', workflowController.getTemplates);
 router.post('/trigger', workflowController.triggerWorkflow);
+router.post('/generate', workflowController.generateAIWorkflow);
 
 export default router;

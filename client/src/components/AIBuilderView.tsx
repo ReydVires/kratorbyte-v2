@@ -11,35 +11,24 @@ const AIBuilderView: React.FC<Props> = ({ onComplete }) => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const { saveGeneratedWorkflow, templates } = useWorkflows();
+  const { generateAIWorkflow, saveGeneratedWorkflow, templates } = useWorkflows();
   const { showToast } = useToast();
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!prompt) return;
     setIsGenerating(true);
     
-    // Simulate AI generation delay
-    setTimeout(async () => {
-      const match = templates.find(uc => prompt.toLowerCase().includes(uc.title.split(' ')[0].toLowerCase()));
-      const wfData = match ? { 
-        name: match.title, 
-        nodes: match.nodes, 
-        edges: match.edges 
-      } : { 
-        name: 'AI Workflow', 
-        nodes: [{ id: 'f1', data: { label: 'AI Task' }, type: 'default', position: { x: 250, y: 100 } }], 
-        edges: [] 
-      };
-
-      try {
-        const savedWf = await saveGeneratedWorkflow(wfData);
-        showToast('AI Workflow designed successfully!', 'success');
-        setResult(savedWf);
-      } catch (err) {
-        console.error(err);
-      }
+    try {
+      const generatedWf = await generateAIWorkflow(prompt);
+      const savedWf = await saveGeneratedWorkflow(generatedWf);
+      showToast('AI Workflow designed successfully!', 'success');
+      setResult(savedWf);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.response?.data?.error || 'Failed to design workflow', 'error');
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   return (

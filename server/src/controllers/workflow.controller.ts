@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { workflowService } from '../services/workflow.service';
+import { AIService } from '../services/ai.service';
 import { sseManager } from '../lib/sse';
 import { analyticsService } from '../services/analytics.service';
 
@@ -45,4 +46,19 @@ export const triggerWorkflow = async (req: Request, res: Response) => {
     runId: `r${Math.floor(Math.random() * 1000)}`,
     workflowId 
   });
+};
+
+export const generateAIWorkflow = async (req: Request, res: Response) => {
+  const { prompt } = req.body;
+  
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  try {
+    const workflow = await AIService.generateWorkflow(prompt);
+    res.json(workflow);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to generate workflow' });
+  }
 };

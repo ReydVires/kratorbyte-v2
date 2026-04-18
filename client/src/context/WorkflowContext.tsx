@@ -14,6 +14,7 @@ interface WorkflowContextType {
   fetchTemplates: () => Promise<void>;
   triggerWorkflow: (id: string) => Promise<void>;
   saveGeneratedWorkflow: (wfData: any) => Promise<any>;
+  generateAIWorkflow: (prompt: string) => Promise<any>;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -93,6 +94,16 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const generateAIWorkflow = async (prompt: string) => {
+    try {
+      const res = await axios.post(`${API_BASE}/workflows/generate`, { prompt });
+      return res.data;
+    } catch (err) {
+      console.error('Failed to generate AI workflow', err);
+      throw err;
+    }
+  };
+
   const selectedWorkflow = workflows.find(w => w.id === selectedWorkflowId) || null;
 
   return (
@@ -106,7 +117,8 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       fetchWorkflows,
       fetchTemplates,
       triggerWorkflow,
-      saveGeneratedWorkflow
+      saveGeneratedWorkflow,
+      generateAIWorkflow
     }}>
       {children}
     </WorkflowContext.Provider>

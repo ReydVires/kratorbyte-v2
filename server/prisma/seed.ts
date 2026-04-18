@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import "dotenv/config";
 import { PrismaClient } from '@prisma/client';
 
@@ -14,6 +16,18 @@ async function main() {
   // Create Templates
   const templates: any[] = [
     {
+      title: "Shopify to Sheets",
+      prompt: "Build a workflow that syncs my Shopify orders to a Google Sheet every hour",
+      nodes: [],
+      edges: []
+    },
+    {
+      title: "Incident Response",
+      prompt: "Create an alert system that notifies Slack when a critical incident is detected",
+      nodes: [],
+      edges: []
+    },
+    {
       title: "Github to Slack",
       prompt: "Create a workflow that triggers on a Github webhook and sends a Slack notification.",
       nodes: [
@@ -24,19 +38,6 @@ async function main() {
       edges: [
         { id: 'eg1', source: 'g1', target: 'g2' },
         { id: 'eg2', source: 'g2', target: 'g3' }
-      ]
-    },
-    {
-      title: "Shopify to Postgres",
-      prompt: "Every day at 9 AM, fetch inventory from Shopify and update my Postgres database.",
-      nodes: [
-        { id: 's1', type: 'input', data: { label: '9 AM Schedule' }, position: { x: 100, y: 100 } },
-        { id: 's2', data: { label: 'Shopify API' }, position: { x: 300, y: 100 } },
-        { id: 's3', type: 'output', data: { label: 'Postgres Upsert' }, position: { x: 500, y: 100 } }
-      ],
-      edges: [
-        { id: 'es1', source: 's1', target: 's2' },
-        { id: 'es2', source: 's2', target: 's3' }
       ]
     }
   ];

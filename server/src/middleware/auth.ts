@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'flowforge_secret_key_2024';
+const JWT_SECRET = (process.env.JWT_SECRET || 'flowforge_secret_key_2024') as string;
 
 export interface TenantRequest extends Request {
   tenant?: {
@@ -20,6 +20,10 @@ export const authMiddleware = (req: TenantRequest, res: Response, next: NextFunc
   }
 
   const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Missing token' });
+  }
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     req.tenant = decoded;
