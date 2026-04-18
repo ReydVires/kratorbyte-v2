@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wand2, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
 import { useWorkflows } from '../context/WorkflowContext';
+import { useToast } from '../context/ToastContext';
 
 interface Props {
   onComplete: (wf: any) => void;
@@ -11,6 +12,7 @@ const AIBuilderView: React.FC<Props> = ({ onComplete }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const { saveGeneratedWorkflow, templates } = useWorkflows();
+  const { showToast } = useToast();
 
   const handleGenerate = () => {
     if (!prompt) return;
@@ -31,6 +33,7 @@ const AIBuilderView: React.FC<Props> = ({ onComplete }) => {
 
       try {
         const savedWf = await saveGeneratedWorkflow(wfData);
+        showToast('AI Workflow designed successfully!', 'success');
         setResult(savedWf);
       } catch (err) {
         console.error(err);

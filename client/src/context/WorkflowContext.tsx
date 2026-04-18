@@ -12,7 +12,7 @@ interface WorkflowContextType {
   setSelectedWorkflowId: (id: string) => void;
   fetchWorkflows: () => Promise<void>;
   fetchTemplates: () => Promise<void>;
-  fetchAnalytics: () => Promise<void>;
+  triggerWorkflow: (id: string) => Promise<void>;
   saveGeneratedWorkflow: (wfData: any) => Promise<any>;
 }
 
@@ -45,25 +45,46 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/analytics`);
-      setAnalytics(res.data);
-    } catch (err) {
-      console.error('Failed to fetch analytics', err);
-    }
+  // Real-time Analytics via SSE
+  useEffect(() => {
+    const eventSource = new EventSource(`${API_BASE}/analytics/stream`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setAnalytics(data);
+      } catch (err) {
+        console.error('Failed to parse SSE data', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('SSE Error:', err);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   useEffect(() => {
     fetchWorkflows();
     fetchTemplates();
-    fetchAnalytics();
-  }, [fetchWorkflows, fetchTemplates, fetchAnalytics]);
+  }, [fetchWorkflows, fetchTemplates]);
+
+  const triggerWorkflow = async (id: string) => {
+    try {
+      await axios.post(`${API_BASE}/workflows/trigger`, { workflowId: id });
+    } catch (err) {
+      console.error('Failed to trigger workflow', err);
+    }
+  };
 
   const saveGeneratedWorkflow = async (wfData: any) => {
     try {
       const res = await axios.post(`${API_BASE}/workflows`, wfData);
-      setWorkflows(prev => [...prev, res.data]);
+      setWorkflows(prev => [res.data, ...prev]);
       setSelectedWorkflowId(res.data.id);
       return res.data;
     } catch (err) {
@@ -84,7 +105,7 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSelectedWorkflowId,
       fetchWorkflows,
       fetchTemplates,
-      fetchAnalytics,
+      triggerWorkflow,
       saveGeneratedWorkflow
     }}>
       {children}

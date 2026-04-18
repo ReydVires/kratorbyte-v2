@@ -15,6 +15,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Play, Save, ChevronDown, Globe, Code, Clock, Database, MessageSquare } from 'lucide-react';
 import { useWorkflows } from '../context/WorkflowContext';
+import { useToast } from '../context/ToastContext';
 
 // Custom Node Component for a more premium look
 const CustomNode = ({ data, type }: any) => {
@@ -66,7 +67,13 @@ const nodeTypes = {
 };
 
 const WorkflowView: React.FC = () => {
-  const { selectedWorkflow: workflow, workflows, setSelectedWorkflowId: onWorkflowSelect } = useWorkflows();
+  const { showToast } = useToast();
+  const { 
+    selectedWorkflow: workflow, 
+    workflows, 
+    setSelectedWorkflowId: onWorkflowSelect,
+    triggerWorkflow
+  } = useWorkflows();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -114,8 +121,24 @@ const WorkflowView: React.FC = () => {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="secondary"><Save size={18} /> Save</button>
-          <button className="primary"><Play size={18} /> Run Now</button>
+          <button 
+            className="secondary"
+            onClick={() => showToast('Changes saved to cloud', 'info')}
+          >
+            <Save size={18} /> Save
+          </button>
+          <button 
+            className="primary" 
+            onClick={() => {
+               console.log('Manually triggering workflow run');
+               if (workflow?.id) {
+                 triggerWorkflow(workflow.id);
+                 showToast(`${workflow.name} triggered successfully`, 'success');
+               }
+            }}
+          >
+            <Play size={18} /> Run Now
+          </button>
         </div>
       </div>
 

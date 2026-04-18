@@ -70,11 +70,15 @@ const AppContent: React.FC = () => {
   );
 };
 
+import { ToastProvider } from './context/ToastContext';
+
 const App: React.FC = () => {
   return (
-    <WorkflowProvider>
-      <AppContent />
-    </WorkflowProvider>
+    <ToastProvider>
+      <WorkflowProvider>
+        <AppContent />
+      </WorkflowProvider>
+    </ToastProvider>
   );
 };
 

@@ -10,6 +10,10 @@ test.describe('FlowForge Workflow Engine', () => {
   test('should navigate to Workflows and interact with the DAG', async ({ page }) => {
     await page.goto('/');
     await page.click('button:has-text("Workflows")');
+    
+    // Select the Inventory Sync workflow explicitly from the dropdown
+    await page.selectOption('select', { label: 'Inventory Sync' });
+    
     await expect(page.locator('h1')).toContainText('Inventory Sync');
     
     // Check if React Flow is loaded
@@ -24,6 +28,9 @@ test.describe('FlowForge Workflow Engine', () => {
     await textarea.fill('Create a workflow that triggers on a Github webhook and sends a Slack notification.');
     
     await page.click('button:has-text("Generate Workflow")');
+    
+    // Verify toast appears
+    await expect(page.locator('text=AI Workflow designed successfully!')).toBeVisible();
     
     // Wait for mock generation and navigation
     await page.click('button:has-text("Open in Builder")', { timeout: 10000 });
