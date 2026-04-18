@@ -22,6 +22,21 @@ export class MockAIService {
       };
     }
 
+    if (lowercasePrompt.includes('github') && lowercasePrompt.includes('slack')) {
+      return {
+        name: 'Github to Slack',
+        nodes: [
+          { id: 'n1', type: 'trigger', data: { label: 'Github Webhook' }, position: { x: 250, y: 50 } },
+          { id: 'n2', type: 'action', data: { label: 'Format Message' }, position: { x: 250, y: 150 } },
+          { id: 'n3', type: 'action', data: { label: 'Send Slack Notification' }, position: { x: 250, y: 250 } }
+        ],
+        edges: [
+          { id: 'e1-2', source: 'n1', target: 'n2', animated: true },
+          { id: 'e2-3', source: 'n2', target: 'n3', animated: true }
+        ]
+      };
+    }
+
     if (lowercasePrompt.includes('slack') || lowercasePrompt.includes('incident')) {
       return {
         name: 'Incident Alert System',

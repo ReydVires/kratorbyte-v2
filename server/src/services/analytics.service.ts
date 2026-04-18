@@ -12,7 +12,8 @@ class AnalyticsService {
       avgLatency: '1.1s', // In a real app, we'd average the duration column
       alerts: (await prisma.workflowRun.count({ where: { status: 'failed' } })),
       successTrend: '+0.2%',
-      latencyP95: '1.8s'
+      latencyP95: '1.8s',
+      quotaUsedPercentage: 95 // Mocked value
     };
   }
 

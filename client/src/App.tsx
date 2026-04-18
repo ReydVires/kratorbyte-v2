@@ -7,7 +7,7 @@ import AIBuilderView from './components/AIBuilderView';
 
 const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'workflows' | 'ai'>('dashboard');
-  const { setSelectedWorkflowId } = useWorkflows();
+  const { setSelectedWorkflowId, analytics } = useWorkflows();
 
   const handleAIComplete = (newWf: any) => {
     setSelectedWorkflowId(newWf.id);
@@ -53,9 +53,9 @@ const AppContent: React.FC = () => {
           </button>
           
           <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid var(--border-color)' }}>
-             <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>QUOTA: 85% USED</p>
+             <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>QUOTA: {analytics?.metrics?.quotaUsedPercentage || 0}% USED</p>
              <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, marginTop: 4 }}>
-                <div style={{ width: '85%', height: '100%', background: 'var(--accent-primary)', borderRadius: 2 }}></div>
+                <div style={{ width: `${analytics?.metrics?.quotaUsedPercentage || 0}%`, height: '100%', background: 'var(--accent-primary)', borderRadius: 2 }}></div>
              </div>
           </div>
         </aside>
