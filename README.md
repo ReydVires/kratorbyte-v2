@@ -71,4 +71,4 @@ npx playwright test
    A `Dockerfile` is provided for containerized deployment (multi-stage build).
 
 ---
-© 2024 FlowForge AI
+© 2026 FlowForge AI
