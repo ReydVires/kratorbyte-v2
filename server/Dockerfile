@@ -19,7 +19,10 @@ COPY --from=builder /app/package*.json ./
 RUN npm install --production
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY start.sh ./
+RUN chmod +x start.sh
 
 EXPOSE 5001
 
-CMD ["node", "dist/index.js"]
+CMD ["./start.sh"]

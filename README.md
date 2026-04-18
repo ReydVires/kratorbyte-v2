@@ -6,7 +6,7 @@ FlowForge is a real-time multi-tenant workflow orchestration engine designed for
 
 - **Frontend**: React + Vite (TS), `@xyflow/react` for DAG visualization.
 - **Backend**: Node.js + Express (TS).
-- **Database**: PostgreSQL/SQLite managed by **Prisma ORM**.
+- **Database**: SQLite managed by **Prisma ORM**.
 - **AI Engine**: Integrated with **Google Gemini 1.5 Flash**.
 - **Monitoring**: Real-time updates via Server-Sent Events (SSE).
 
@@ -58,25 +58,26 @@ FlowForge is a real-time multi-tenant workflow orchestration engine designed for
 The AI Architect in FlowForge transforms natural language into structured, executable DAGs.
 
 ### Prompt Engineering Approach
-We utilize a **Structured System Prompting** strategy to enforce rigid schema compliance. Our system prompt:
-- **Defines the Schema**: Explicitly defines the JSON structure for Nodes and Edges compatible with `@xyflow/react`.
-- **Enforces Constraints**: Mandates that every workflow starts with a `trigger` node and ensures logical flow (Trigger -> Action/Condition).
-- **Isolation**: Instructs the model to output *only* raw JSON, preventing conversational filler from breaking the parser.
+We utilize a **Structured System Prompting** strategy to enforce rigid schema compliance:
+- **Schema-First Context**: The system prompt explicitly defines the JSON schema for Nodes and Edges compatible with `@xyflow/react`.
+- **Topological Constraints**: Mandates that every workflow starts with a `trigger` node and follows a logical graph structure (Trigger -> Actions).
+- **Zero-Conversation Mode**: Instructs the model to output *only* raw JSON, preventing conversational filler or markdown artifacts from breaking the parser.
 
-### Token Management
-To optimize cost, latency, and reliability, we employ:
-- **Model Selection**: We use `gemini-1.5-flash` for its optimal balance of speed and complex reasoning.
-- **Input Sanitization**: Client-side and server-side character limits (2,000 characters) ensure prompts stay within efficient processing windows and prevent "prompt injection" or token overflow.
+### Token Management & Optimization
+To maintain performance and cost-efficiency:
+- **Model Selection**: We use `gemini-1.5-flash` for its high context window and superior speed in structured data tasks.
+- **Input Sanitization**: Pruning irrelevant user input and enforcing a 2,000 character limit on prompts to prevent token bloat and potential prompt injection.
+- **Quota Tracking**: Real-time monitoring of token usage, reflected in the system dashboard to prevent over-utilization.
 
 ### LLM Output Guardrails
-To prevent malformed or invalid workflows from crashing the UI, we implement a multi-layered guard system:
-1. **Syntactic Guard**: A regex-based post-processor removes potential Markdown code blocks (e.g., ` ```json `) before parsing.
-2. **Structural Validation**: After JSON parsing, we verify the existence of mandatory keys (`nodes`, `edges`).
-3. **Graceful Fallbacks**: If parsing fails or structural validation is unsatisfied, the system throws a descriptive error and logs the malformed response for debugging, while the UI prompts the user to refine their request.
+We implement a multi-layered verification system to ensure robustness:
+1. **Syntactic Guard**: A post-processing layer that strips Markdown tags (e.g., ` ```json `) and hidden control characters before JSON parsing.
+2. **Schema Validation**: Every generated workflow is validated against internal Prisma models and `@xyflow` requirements before being saved.
+3. **Graceful Failures**: If the LLM generates an invalid graph (e.g., disconnected nodes), the system provides specific feedback to the user and suggests prompt refinements instead of crashing.
 
 ## 🐳 Docker Deployment
 
-The application is fully containerized. To run the entire stack using Docker:
+The application is fully containerized for easy deployment.
 
 1. **Build and Run**
    ```bash
@@ -84,18 +85,18 @@ The application is fully containerized. To run the entire stack using Docker:
    ```
 
 2. **Access the Application**
-   - **Frontend**: `http://localhost:3000`
+   - **Frontend**: `http://localhost:3000` (Mapped to Nginx internally)
    - **Backend**: `http://localhost:5001`
 
 3. **Docker Persistence**
-   The Prisma database is persisted via a volume mapped to `./server/prisma`.
+   The Prisma database is persisted via a volume mapped to `./server/prisma` to ensure data survives container restarts.
 
 ## 🧪 Testing
 
-We use **Playwright** for E2E testing. To run tests locally:
+We use **Playwright** for E2E testing to ensure workflow stability.
 
-1. Ensure the application is running (`npm run dev` in both client and server).
-2. Run the tests from the `client` directory:
+1. Ensure the application is up and running.
+2. Run tests from the `client` directory:
    ```bash
    cd client
    npx playwright test
