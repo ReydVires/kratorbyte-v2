@@ -1,8 +1,11 @@
 import React from 'react';
 import { Zap, Shield } from 'lucide-react';
 import { Heading, Text } from '../atoms/Typography';
+import { useAuth } from '../../../hooks/useAuth';
 
 const ThemedHeader: React.FC = () => {
+  const { user, loading } = useAuth();
+
   return (
     <header style={{
       height: '64px',
@@ -31,7 +34,9 @@ const ThemedHeader: React.FC = () => {
       
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Shield size={18} color="#8b5cf6" />
-        <Text variant="dim" style={{ fontSize: '0.9rem', marginBottom: 0 }}>Acme Corp (Admin)</Text>
+        <Text variant="dim" style={{ fontSize: '0.9rem', marginBottom: 0 }}>
+          {user ? `${user.tenant} (${user.role})` : 'Loading...'}
+        </Text>
         <div style={{ 
           width: 32, 
           height: 32, 

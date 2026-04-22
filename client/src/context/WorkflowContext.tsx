@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-
-const API_BASE = 'http://localhost:5001/api';
+import { useWorkflowsApi } from '../hooks/useWorkflowsApi';
+import { API_BASE } from '../lib/api';
 
 interface WorkflowContextType {
   workflows: any[];
@@ -25,26 +24,28 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [analytics, setAnalytics] = useState<any | null>(null);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
 
+  const api = useWorkflowsApi();
+
   const fetchWorkflows = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_BASE}/workflows`);
-      setWorkflows(res.data);
-      if (res.data.length > 0 && !selectedWorkflowId) {
-        setSelectedWorkflowId(res.data[0].id);
+      const data = await api.getWorkflows();
+      setWorkflows(data);
+      if (data.length > 0 && !selectedWorkflowId) {
+        setSelectedWorkflowId(data[0].id);
       }
     } catch (err) {
       console.error('Failed to fetch workflows', err);
     }
-  }, [selectedWorkflowId]);
+  }, [selectedWorkflowId, api]);
 
   const fetchTemplates = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_BASE}/workflows/templates`);
-      setTemplates(res.data);
+      const data = await api.getTemplates();
+      setTemplates(data);
     } catch (err) {
       console.error('Failed to fetch templates', err);
     }
-  }, []);
+  }, [api]);
 
   // Real-time Analytics via SSE
   useEffect(() => {
@@ -76,7 +77,7 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const triggerWorkflow = async (id: string) => {
     try {
-      await axios.post(`${API_BASE}/workflows/trigger`, { workflowId: id });
+      await api.triggerWorkflow(id);
     } catch (err) {
       console.error('Failed to trigger workflow', err);
     }
@@ -84,10 +85,10 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const saveGeneratedWorkflow = async (wfData: any) => {
     try {
-      const res = await axios.post(`${API_BASE}/workflows`, wfData);
-      setWorkflows(prev => [res.data, ...prev]);
-      setSelectedWorkflowId(res.data.id);
-      return res.data;
+      const data = await api.createWorkflow(wfData);
+      setWorkflows(prev => [data, ...prev]);
+      setSelectedWorkflowId(data.id);
+      return data;
     } catch (err) {
       console.error('Failed to save workflow', err);
       throw err;
@@ -96,8 +97,8 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const generateAIWorkflow = async (prompt: string) => {
     try {
-      const res = await axios.post(`${API_BASE}/workflows/generate`, { prompt });
-      return res.data;
+      const data = await api.generateAIWorkflow(prompt);
+      return data;
     } catch (err) {
       console.error('Failed to generate AI workflow', err);
       throw err;

@@ -12,10 +12,9 @@ export interface TenantRequest extends Request {
 
 export const authMiddleware = (req: TenantRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader) {
-    // For MVP, if no header is provided, we simulate an 'Admin' from 'Acme Corp'
-    req.tenant = { id: 'Acme Corp', role: 'Admin' };
+    req.tenant = { id: 'Guess', role: 'Admin' };
     return next();
   }
 

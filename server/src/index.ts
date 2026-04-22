@@ -21,6 +21,15 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api', apiRoutes);
 
-app.listen(PORT, () => {
-  console.log(`FlowForge Server running on http://localhost:${PORT}`);
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 FlowForge Server running on http://localhost:${PORT}`);
+  console.log(`   Internal: http://0.0.0.0:${PORT}`);
+});
+
+server.on('error', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use.`);
+  } else {
+    console.error('❌ Server error:', err);
+  }
 });
