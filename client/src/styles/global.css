@@ -53,12 +53,6 @@ header {
   z-index: 100;
 }
 
-.dashboard-container {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  height: calc(100vh - 64px);
-}
-
 aside {
   padding: 24px;
   border-right: 1px solid var(--border-color);
@@ -72,22 +66,12 @@ aside button {
   overflow: hidden;
 }
 
-aside button.primary::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--accent-secondary);
-  box-shadow: 0 0 10px var(--accent-secondary);
-}
-
 .react-flow__node {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
+
 
 main {
   padding: 24px;
@@ -115,6 +99,16 @@ button {
   gap: 8px;
 }
 
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.9);
+}
+
 button.primary {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
@@ -122,7 +116,6 @@ button.primary {
 }
 
 button.primary:hover {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
@@ -136,6 +129,7 @@ button.secondary:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
+
 .badge {
   padding: 4px 8px;
   border-radius: 4px;
@@ -148,3 +142,16 @@ button.secondary:hover {
 .badge-warning { background: rgba(234, 179, 8, 0.2); color: #fde047; }
 .badge-error { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
 .badge-info { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
